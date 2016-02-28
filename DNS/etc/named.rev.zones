@@ -1,0 +1,8 @@
+zone "8.168.192.in-addr.arpa" IN {
+	type	master;
+	file	"/etc/bind/zones/master/db.8-168-192.in-addr";
+	allow-transfer { 192.168.8.203; };
+	allow-query	{any;};
+	allow-update {none;};
+	};
+

@@ -1,0 +1,18 @@
+zone "uzzalbd.me"  IN {
+	type	master;
+	file	"/etc/bind/zones/master/db.uzzalbd.me";
+	allow-update	{none;};
+	
+};
+zone "mysite.me" IN {
+        type    master;
+        file    "/etc/bind/zones/master/db.mysite.me";
+        allow-update    {none;};
+
+};
+zone "monitor.ipvision.com" IN {
+	type master;
+	file "/etc/bind/zones/master/db.monitor.ipvision.com";
+	allow-update {none;};
+};
+

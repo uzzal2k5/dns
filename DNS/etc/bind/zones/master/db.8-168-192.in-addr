@@ -1,0 +1,19 @@
+;Reverse zone db for ipvbd.com
+$ORIGIN 8.168.192.in-addr.arpa.
+$TTL    86400
+@	IN	SOA	ns1.ipvbd.com. admin.ipvbd.com. (
+                        1         	; Serial
+                        3h		; Refresh
+                        1h        	; Retry
+                        1w	        ; Expire
+                        1h		;Negative Cache TTL
+			 )     	 
+;
+; name servers - NS records
+@	IN	NS      ns1.ipvbd.com.
+@	IN	NS      ns2.ipvbd.com.
+; PTR Records
+204	IN	PTR	ns1.ipvbd.com.
+203	IN	PTR	ns2.ipvbd.com.
+62	IN	PTR	shafiqpc.ipvbd.com.
+

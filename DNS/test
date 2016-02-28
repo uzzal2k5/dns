@@ -1,0 +1,30 @@
+ping -c 2 `hostname`
+
+[root@dns0 master]# ping -c 2 `hostname`
+PING dns0 (127.0.0.1) 56(84) bytes of data.
+64 bytes from dns0 (127.0.0.1): icmp_seq=1 ttl=64 time=0.031 ms
+64 bytes from dns0 (127.0.0.1): icmp_seq=2 ttl=64 time=0.034 ms
+
+--- dns0 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 999ms
+rtt min/avg/max/mdev = 0.031/0.032/0.034/0.005 ms
+[root@dns0 master]# 
+
+[root@dns0 ~]# netstat -ant | grep -w 53
+tcp        0      0 172.16.10.11:53         0.0.0.0:*               LISTEN     
+tcp        0      0 127.0.0.1:53            0.0.0.0:*               LISTEN     
+tcp6       0      0 ::1:53                  :::*                    LISTEN 
+
+
+dig @172.16.10.11 www.ipvbd.com
+
+
+Check Config file:
+
+named-checkconf
+
+named-checkzone ipvbd.com /etc/bind/zones/master/db.ipvbd.com
+
+named-checkzone 10.16.172.in-addr.arpa /etc/bind/zones/master/db.10-16-172.in-addr
+
+

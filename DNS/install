@@ -1,0 +1,41 @@
+yum install bind* -y
+
+vi /etc/named.conf
+ listen-on port 53 { 127.0.0.1;172.16.10.11; };
+
+ allow-query     { localhost; 172.16.10.0/24;};
+ allow-transfer  {172.16.10.12;};
+
+
+mkdir -p /etc/bind/zones/master/
+
+
+
+vi /etc/hosts
+
+127.0.0.1	dns0
+172.16.10.11	dns0
+
+
+systemctl start named.service
+systemctl status -l named.service
+
+
+firewall-cmd --add-port=53/tcp --zone=public --permanent
+firewall-cmd --add-port=53/udp --zone=public --permanent
+firewall-cmd --reload
+
+
+
+ChecK Config Files:
+
+
+named-checkconf
+
+named-checkzone ipvbd.com /etc/bind/zones/master/db.ipvbd.com
+
+named-checkzone 10.16.172.in-addr.arpa /etc/bind/zones/master/db.10-16-172.in-addr
+
+
+
+
