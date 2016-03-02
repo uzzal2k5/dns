@@ -72,7 +72,7 @@ root_domain_record="
 ;name servers - NS records
 	IN	NS	dns1.${my_domain}.
 	IN	NS	ns1.${my_domain}.
-	IN	MX	10	mail.${my_domain}.
+${my_domain}.	IN	MX	10	mail.${my_domain}.
 
 ; name servers - A records
 	IN	A	${eth_ip}	
