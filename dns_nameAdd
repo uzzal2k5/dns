@@ -1,0 +1,136 @@
+#!/bin/bash
+###### GLOBAL SETTINGS ##########
+domain="ipvbd.com"              #
+db_forward="db.ipvbd.com"       #
+db_reverse="db.20.16.172.zones" #
+db_dir="/etc/bind/zones/master" #
+ip_subnet="172.16.20.0/24"      #
+#################################
+declare -a ip_array
+
+function exit_shell(){   ## Function to exit from shell
+  [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1  # handle exit from shell or function but not interactive shell
+}
+
+function add_name(){    ## Function to add name
+read -r -p "Which DNS name you Prefer (example.ipvbd.com):" dns_name
+valid_name      # Name Validation Goes Here
+}
+
+
+function valid_name(){   ## Function for name validation
+if [[ $dns_name =~  [^a-zA-Z0-9_]+ ]]
+then
+        printf "Invalid Name Format\n"
+        exit_shell
+else
+return $dns_name
+fi
+}
+function valid_ip(){  # Function for IP validation
+
+if ! [[ $ip_addr =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]
+then
+printf "Ivalid Format IP\n"
+exit_shell
+else
+ip_array=(`echo $ip_addr | tr "." " "`)
+if [[ ${ip_array[0]} -le 255 && ${ip_array[1]} -le 255 && ${ip_array[2]} -le 255 && ${ip_array[3]} -le 255 ]]
+then
+return $ip_addr # Return IP Address after validate
+else
+printf "Invalid IP\n"
+exit_shell
+fi
+fi
+}
+
+
+function add_ip(){   ## Function for add IP address
+read -r -p "Write the IP address assign for ($dns_name.$domain):" ip_addr
+valid_ip #ip validation here
+}
+
+## ADD Name Function
+
+function add_function(){
+add_name
+add_ip
+last_octed=$(cut -f4 -d'.'<<<$ip_addr)
+
+if [ $last_octed -eq  255 ] || [ $last_octed -eq 1 ] # 255 is broadcast and 1 is reserve for gateway. You can change this.
+then
+    printf "\n You entered an Invalid IP address, Please try again.\n"
+    exit_shell
+else
+printf "\nNew dns entry would be: ' $dns_name\t $ip_addr'\n"
+read -p "Are you sure(y/n)? " -n 1 -r
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+cd $db_dir && (
+if ( grep $dns_name $db_forward  || grep $ip_addr $db_forward || grep $dns_name.$domain. $db_reverse || grep $last_octed $db_reverse ) > /dev/null
+    then
+    printf "\nDNS Name or IP address already exist\n"
+    exit_shell
+    else
+    echo "$dns_name     IN      A     $ip_addr" >>$db_forward
+    echo "$last_octed   IN      PTR     $dns_name.$domain.">>$db_reverse
+    printf "\nDNS name $dns_name.$domain successfully added.\n"
+    fi
+
+)
+elif [[ $REPLY =~ ^[Nn]$ ]]
+then
+     printf "Try Again\n"
+     exit_shell
+
+fi
+fi
+}
+
+function check_dnsdir(){
+if [ ! -d $db_dir ]
+then
+printf "\nDNS Directory does not exist\n"
+exit_shell
+
+else
+cd $db_dir && (
+if [ ! -f $db_forward ] || [ ! -f $db_reverse ]
+then
+    printf "\nDB file does not exist\n"
+    exit_shell
+else
+return 0
+fi
+)
+
+fi
+}
+## MAIN TASK
+ ## declare main Function
+
+function main(){
+if check_dnsdir
+then
+add_function
+else
+printf "Command may not working properly, Please check it manually."
+exit_shell
+fi
+}
+## Find out the line number of certail string
+line_no=`grep -n $ip_subnet $db_dir/$db_forward | cut -f1 -d:`
+## list all lines from line_no 
+name_list=`awk 'BEGIN{n='$line_no'}NR<=n{next}1' $db_dir/$db_forward`
+
+# # A Case Statement
+case $@ in
+    name ) main ;; ## Main Function Call Here
+    --list|-l ) echo "$name_list" ;;
+    --help|-h ) echo "type name:"
+                echo " name : To add name "
+                echo " --list or  -l :  -to show list of name" ;;
+       * ) echo “Need Argument, Type --help or -h for help”;;
+esac
+
