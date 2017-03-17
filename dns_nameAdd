@@ -128,8 +128,8 @@ name_list=`awk 'BEGIN{n='$line_no'}NR<=n{next}1' $db_dir/$db_forward`
 case $@ in
     name ) main ;; ## Main Function Call Here
     --list|-l ) echo "$name_list" ;;
-    --help|-h ) echo "type name:"
-                echo " name : To add name "
+    --help|-h ) echo "      Help List:"
+                echo "          name : To add name "
                 echo " --list or  -l :  -to show list of name" ;;
        * ) echo “Need Argument, Type --help or -h for help”;;
 esac
